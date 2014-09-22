@@ -2,8 +2,9 @@
 	"name": "matrix",
 	"description": "Simple matrix implementation",
 	"homepage": "",
-	"copyright": "Copyright © 2014, Ilya Yaroshenko",
+	"copyright": "2014 Ilya Yaroshenko",
 	"authors": [
 		"Ilya Yaroshenko"
 	],
+	"license" : "MIT"
 }
