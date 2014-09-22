@@ -3,8 +3,6 @@ module matrix;
 import core.memory;
 
 import std.parallelism;
-import std.complex;
-
 
 enum MaxVectorSizeof = 256;
 
