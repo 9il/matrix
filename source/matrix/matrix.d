@@ -5,66 +5,10 @@ import core.memory;
 import std.parallelism;
 import std.complex;
 
-//import vectormath;
 
-//import simd.constants;
 enum MaxVectorSizeof = 256;
 
 private extern(C) void *aligned_alloc(size_t alignment, size_t size);
-
-//pragma(msg, MaxVectorSizeof);
-
-
-//unittest
-//{
-//	import std.random;
-//	import std.numeric;
-//	import std.math;
-
-
-//	enum n = 333, k = 333;
-//	{
-//		auto phi = Matrix!float(n, k);
-//		auto p = creatAlignedArray!float(k);
-//		auto tempdp = creatAlignedArray!float(n);
-//		auto tempdp2 = creatAlignedArray!float(n);
-//		auto tempdpV = creatAlignedArray!(__vector(float[MaxVectorSizeof/float.sizeof]))(n);
-
-//		foreach(i; 0..k)
-//			foreach(j; 0..n)
-//				phi[j, i] = uniform(-9, 10);
-
-//		foreach(ref pi; p)
-//			pi = uniform(-9, 10);
-
-//		foreach(i; 0..n)
-//			tempdp2[i] = std.numeric.dotProduct(p, phi[i]);
-
-//		gemv!float(tempdp, p, phi);
-//		assert(tempdp == tempdp2, format("\nstddp = \n%s\n dp = \n%s\n", tempdp2, tempdp));
-//	}
-	
-//	{
-//		auto phi = Matrix!double(n, k);
-//		auto p = creatAlignedArray!double(k);
-//		auto tempdp = creatAlignedArray!double(n);
-//		auto tempdp2 = creatAlignedArray!double(n);
-//		auto tempdpV = creatAlignedArray!(__vector(double[MaxVectorSizeof/double.sizeof]))(n);
-
-//		foreach(i; 0..k)
-//			foreach(j; 0..n)
-//				phi[j, i] = uniform(-9, 10);
-
-//		foreach(ref pi; p)
-//			pi = uniform(-9, 10);
-
-//		foreach(i; 0..n)
-//			tempdp2[i] = std.numeric.dotProduct(p, phi[i]);
-
-//		gemv!double(tempdp, p, phi);
-//		assert(tempdp == tempdp2);
-//	}
-//}
 
 
 T[] creatAlignedArray(T)(size_t length)
@@ -358,32 +302,3 @@ struct Transposed(T)
 		return matrix.width;
 	}
 }
-
-
-//unittest 
-//{
-//	auto m = Matrix!(Complex!float)(3, 4);
-//	auto n = creatAlignedArray!(Complex!float)(4), h = creatAlignedArray!(Complex!float)(3);
-//	foreach(i; 0..3)
-//	{
-//		auto r = m[i];
-//		foreach(j; 0..4)
-//		{
-//			const q = (i+3) * (j-5);
-//			m[i, j] = complex(q, 0);
-//			m[i, j]+=1;
-//			assert(m[i, j] == q+1);
-//			assert(r[j] == q+1);
-//		}
-//	}
-//	foreach(i, ref e; n) e = 2-i;
-//	h.gemv(n, m);
-//	import std.stdio;
-//	//h.gemm(m,n);
-//	//writeln(m.arrays);
-//	//writeln(h);
-
-
-//	alias M = Matrix!double;
-//	auto c = M(4, 5), a = M(4, 3), b = M(3, 5);
-//}
