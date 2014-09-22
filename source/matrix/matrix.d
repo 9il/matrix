@@ -2,8 +2,6 @@ module matrix;
 
 import core.memory;
 
-import std.parallelism;
-
 enum MaxVectorSizeof = 256;
 
 private extern(C) void *aligned_alloc(size_t alignment, size_t size);
@@ -215,7 +213,7 @@ struct Matrix(T)
 	{
 		auto m = Matrix!T(width, height);
 
-		foreach(i, row; this.parallel)
+		foreach(i, row; this)
 		{
 			foreach(j, e; row)
 			{
