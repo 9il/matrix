@@ -309,5 +309,6 @@ struct Transposed(T)
 
 unittest {
 	alias M = Matrix!double;
+	alias M = Transposed!double;
 	alias V = Vector!double;
 }
