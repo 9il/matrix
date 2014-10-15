@@ -1,7 +1,7 @@
 module simple_matrix;
 
 ///C11 standart
-private extern(C) void *aligned_alloc(size_t alignment, size_t size);
+private extern(C) void *aligned_alloc(size_t alignment, size_t size) nothrow @nogc @system;
 
 ///Max size of SIMD vector.
 enum MaxVectorSizeof = 256;
