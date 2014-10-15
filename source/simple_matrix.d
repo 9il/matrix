@@ -7,19 +7,16 @@ private extern(C) void *aligned_alloc(size_t alignment, size_t size);
 enum MaxVectorSizeof = 256;
 
 
-template createAlignedArray(bool GCAddRoot = true)
+T[] createAlignedArray(T, bool GCAddRoot = true)(size_t length)
 {
-	T[] createAlignedArray(T)(size_t length)
+	T* ptr;
+	ptr = cast(T*)aligned_alloc(MaxVectorSizeof, length * T.sizeof);
+	static if(GCAddRoot)
 	{
-		T* ptr;
-		ptr = cast(T*)aligned_alloc(MaxVectorSizeof, length * T.sizeof);
-		static if(GCAddRoot)
-		{
-			import core.memory;
-			GC.addRoot(ptr);
-		}
-		return ptr[0..length];
+		import core.memory;
+		GC.addRoot(ptr);
 	}
+	return ptr[0..length];
 }
 
 
@@ -115,7 +112,7 @@ struct Matrix(T, bool GCAddRoot = true)
 		this.height = height;
 		this.width = width;
 		this.shift = shift;
-		ptr = createAlignedArray!GCAddRoot(height * shift).ptr;
+		ptr = createAlignedArray!(T, GCAddRoot)(height * shift).ptr;
 	}
 
 
