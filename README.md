@@ -1,4 +1,4 @@
 matrix
 ======
 
-Simple matrix implementation
+Simple matrix implementation with lazy transposed iterator.
