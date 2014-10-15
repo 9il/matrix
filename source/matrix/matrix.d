@@ -1,18 +1,27 @@
 module matrix;
 
-import core.memory;
-
-enum MaxVectorSizeof = 256;
-
+///C11 standart
 private extern(C) void *aligned_alloc(size_t alignment, size_t size);
 
+///Max size of SIMD vector.
+enum MaxVectorSizeof = 256;
 
-T[] creatAlignedArray(T)(size_t length)
+
+template createAlignedArray(bool GCAddRoot = true)
 {
-	T* ptr;
-	GC.addRoot(ptr = cast(T*)aligned_alloc(MaxVectorSizeof, length * T.sizeof));
-	return ptr[0..length];
+	T[] createAlignedArray(T)(size_t length)
+	{
+		T* ptr;
+		ptr = cast(T*)aligned_alloc(MaxVectorSizeof, length * T.sizeof);
+		static if(GCAddRoot)
+		{
+			import core.memory;
+			GC.addRoot(ptr);
+		}
+		return ptr[0..length];
+	}
 }
+
 
 struct Vector(T)
 {
@@ -61,7 +70,8 @@ struct Vector(T)
 	}
 }
 
-struct Matrix(T)
+
+struct Matrix(T, bool GCAddRoot = true)
 {
 	T* ptr;
 	size_t height;
@@ -105,7 +115,7 @@ struct Matrix(T)
 		this.height = height;
 		this.width = width;
 		this.shift = shift;
-		GC.addRoot(ptr = cast(T*)aligned_alloc(MaxVectorSizeof, height * shift * T.sizeof));
+		ptr = createAlignedArray!GCAddRoot(height * shift).ptr;
 	}
 
 
@@ -118,7 +128,6 @@ struct Matrix(T)
 		this.height = height;
 		this.width = width;
 		this.shift = shift;
-		GC.addRoot(ptr);
 	}
 
 
@@ -127,7 +136,6 @@ struct Matrix(T)
 	{
 		return ptr+height*shift;
 	}
-
 
 
 	this(T* ptr, size_t height, size_t width)
@@ -228,7 +236,6 @@ struct Matrix(T)
 	{
 		return ptr+height*shift;
 	}
-
 }
 
 
@@ -297,4 +304,10 @@ struct Transposed(T)
 	{
 		return matrix.width;
 	}
+}
+
+
+unittest {
+	alias M = Matrix!double;
+	alias V = Vector!double;
 }
