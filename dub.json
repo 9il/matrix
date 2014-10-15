@@ -1,10 +1,11 @@
 {
 	"name": "matrix",
 	"description": "Simple matrix implementation",
-	"homepage": "",
-	"copyright": "2014 Ilya Yaroshenko",
+	"targetType": "library",
+	"homepage": "http://github.com/9il/matrix",
+	"copyright": "Copyright © 2014 Ilya Yaroshenko",
 	"authors": [
 		"Ilya Yaroshenko"
 	],
-	"license" : "MIT"
+	"license": "Subject to the terms of the MIT license, as written in the included LICENSE.txt file."
 }
