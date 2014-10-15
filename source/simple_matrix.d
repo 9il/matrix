@@ -1,4 +1,4 @@
-module matrix;
+module simple_matrix;
 
 ///C11 standart
 private extern(C) void *aligned_alloc(size_t alignment, size_t size);
