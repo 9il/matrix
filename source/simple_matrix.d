@@ -86,9 +86,9 @@ struct Matrix(T, bool GCAddRoot = true)
 	}
 
 
-	Transposed!T transposed()
+	Transposed!(T, GCAddRoot) transposed()
 	{
-		return Transposed!T(this);
+		return Transposed!(T, GCAddRoot)(this);
 	}
 
 
