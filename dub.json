@@ -1,5 +1,5 @@
 {
-	"name": "matrix",
+	"name": "simple_matrix",
 	"description": "Simple matrix implementation",
 	"targetType": "library",
 	"homepage": "http://github.com/9il/matrix",
