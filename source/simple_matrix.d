@@ -1,7 +1,7 @@
 module simple_matrix;
 
 ///C11 standart
-private extern(C) void *aligned_alloc(size_t alignment, size_t size) nothrow @nogc @system;
+private extern(C) void *aligned_alloc(size_t alignment, size_t size);
 
 ///Max size of SIMD vector.
 enum MaxVectorSizeof = 256;
@@ -214,9 +214,9 @@ struct Matrix(T, bool GCAddRoot = true)
 	}
 
 
-	Matrix!T transpose() 
+	Matrix!(T, GCAddRoot) transpose() 
 	{
-		auto m = Matrix!T(width, height);
+		auto m = Matrix!(T, GCAddRoot)(width, height);
 		size_t i;
 		foreach(row; this)
 		{
@@ -237,9 +237,9 @@ struct Matrix(T, bool GCAddRoot = true)
 }
 
 
-struct Transposed(T)
+struct Transposed(T, bool GCAddRoot = true)
 {
-	Matrix!T matrix;
+	Matrix!(T, GCAddRoot) matrix;
 
 	size_t width() const @property
 	{
@@ -251,7 +251,7 @@ struct Transposed(T)
 		return matrix.width;
 	}
 	
-	Matrix!T transposed()  
+	Matrix!(T, GCAddRoot) transposed()  
 	{
 		return matrix;
 	}
