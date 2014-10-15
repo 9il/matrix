@@ -217,13 +217,14 @@ struct Matrix(T, bool GCAddRoot = true)
 	Matrix!T transpose() 
 	{
 		auto m = Matrix!T(width, height);
-
-		foreach(i, row; this)
+		size_t i;
+		foreach(row; this)
 		{
 			foreach(j, e; row)
 			{
 				m[j, i] = e;
 			}
+			i++;
 		}
 		
 		return m;
