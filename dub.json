@@ -2,7 +2,7 @@
 	"name": "simple_matrix",
 	"description": "Simple matrix implementation",
 	"targetType": "library",
-	"homepage": "http://github.com/9il/matrix",
+	"homepage": "http://github.com/9il/simple_matrix",
 	"copyright": "Copyright © 2014 Ilya Yaroshenko",
 	"authors": [
 		"Ilya Yaroshenko"
