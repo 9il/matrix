@@ -307,6 +307,6 @@ struct Transposed(T, bool GCAddRoot = true)
 
 unittest {
 	alias M = Matrix!double;
-	alias M = Transposed!double;
+	alias T = Transposed!double;
 	alias V = Vector!double;
 }
