@@ -1,23 +1,6 @@
 module simple_matrix;
 
-///C11 standart
-private extern(C) void *aligned_alloc(size_t alignment, size_t size);
-
-///Max size of SIMD vector.
-enum MaxVectorSizeof = 256;
-
-
-T[] createAlignedArray(T, bool GCAddRoot = true)(size_t length)
-{
-	T* ptr;
-	ptr = cast(T*)aligned_alloc(MaxVectorSizeof, length * T.sizeof);
-	static if(GCAddRoot)
-	{
-		import core.memory;
-		GC.addRoot(ptr);
-	}
-	return ptr[0..length];
-}
+import core.stdc.stdlib;
 
 
 struct Vector(T)
@@ -68,7 +51,7 @@ struct Vector(T)
 }
 
 
-struct Matrix(T, bool GCAddRoot = true)
+struct Matrix(T)
 {
 	T* ptr;
 	size_t height;
@@ -86,41 +69,32 @@ struct Matrix(T, bool GCAddRoot = true)
 	}
 
 
-	Transposed!(T, GCAddRoot) transposed()
+	Transposed!T transposed()
 	{
-		return Transposed!(T, GCAddRoot)(this);
+		return Transposed!T(this);
 	}
 
 
 	this(size_t height, size_t width)
 	{
-		enum N = MaxVectorSizeof/T.sizeof;
-		size_t r = width%N;
-		size_t shift = width;
-		if(r)
-		{
-			shift += N-r;
-		}
-		this(height, width, shift);
+		this(height, width, width);
 	}
+
+
+	this(T* ptr, size_t height, size_t width)
+	{
+		this(height, width, width);
+	}
+
 
 	this(size_t height, size_t width, size_t shift)
 	{
-		enum N = MaxVectorSizeof/T.sizeof;
-		assert(width <= shift);
-		assert(shift%N == 0);
-		this.height = height;
-		this.width = width;
-		this.shift = shift;
-		ptr = createAlignedArray!(T, GCAddRoot)(height * shift).ptr;
+		this(new T[height * shift].ptr, height, width, shift);
 	}
 
 
 	this(T* ptr, size_t height, size_t width, size_t shift)
 	{
-		enum N = MaxVectorSizeof/T.sizeof;
-		assert(width <= shift);
-		//assert(shift%N == 0);
 		this.ptr = ptr;
 		this.height = height;
 		this.width = width;
@@ -128,16 +102,9 @@ struct Matrix(T, bool GCAddRoot = true)
 	}
 
 
-
 	const(T)* end() const
 	{
 		return ptr+height*shift;
-	}
-
-
-	this(T* ptr, size_t height, size_t width)
-	{
-		this(ptr, height, width, width);
 	}
 
 
@@ -214,9 +181,10 @@ struct Matrix(T, bool GCAddRoot = true)
 	}
 
 
-	Matrix!(T, GCAddRoot) transpose() 
+	auto transpose() 
 	{
-		auto m = Matrix!(T, GCAddRoot)(width, height);
+		import std.traits : Unqual;
+		auto m = Matrix!(Unqual!T)(width, height);
 		size_t i;
 		foreach(row; this)
 		{
@@ -237,9 +205,9 @@ struct Matrix(T, bool GCAddRoot = true)
 }
 
 
-struct Transposed(T, bool GCAddRoot = true)
+struct Transposed(T)
 {
-	Matrix!(T, GCAddRoot) matrix;
+	Matrix!T matrix;
 
 	size_t width() const @property
 	{
@@ -251,7 +219,7 @@ struct Transposed(T, bool GCAddRoot = true)
 		return matrix.width;
 	}
 	
-	Matrix!(T, GCAddRoot) transposed()  
+	Matrix!T transposed()  
 	{
 		return matrix;
 	}
