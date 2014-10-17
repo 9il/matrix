@@ -83,7 +83,7 @@ struct Matrix(T)
 
 	this(T* ptr, size_t height, size_t width)
 	{
-		this(height, width, width);
+		this(ptr, height, width, width);
 	}
 
 
