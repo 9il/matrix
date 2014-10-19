@@ -181,7 +181,7 @@ struct Matrix(T)
 	}
 
 
-	auto transpose() 
+	auto transpose() const
 	{
 		import std.traits : Unqual;
 		auto m = Matrix!(Unqual!T)(width, height);
