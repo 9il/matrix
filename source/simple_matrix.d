@@ -186,7 +186,7 @@ struct Matrix(T)
 		import std.traits : Unqual;
 		auto m = Matrix!(Unqual!T)(width, height);
 		size_t i;
-		foreach(row; this)
+		foreach(row; cast(Matrix!(Unqual!T))this)
 		{
 			foreach(j, e; row)
 			{
