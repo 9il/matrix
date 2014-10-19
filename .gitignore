@@ -5,3 +5,5 @@ docs.json
 /docs
 /.dub
 *.a
+
+libsimple_matrix.a
