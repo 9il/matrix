@@ -9,3 +9,5 @@ docs.json
 libsimple_matrix.a
 
 *.o
+
+*.ddoc
