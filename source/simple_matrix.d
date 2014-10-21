@@ -1,10 +1,14 @@
-
-///
+/**
+Low level unsafe routines for BLAS.
+*/
 module simple_matrix;
 
 import core.stdc.stdlib;
+import core.stdc.string;
 
 import std.traits : Unqual;
+import std.range;
+import std.algorithm : equal, copy;
 
 ///
 struct Vector(T)
@@ -167,25 +171,17 @@ struct Matrix(T)
 	}
 
 	///
-	inout(Vector!T) transversal(size_t index) inout
-	in
+	inout(typeof(this)) transpose() inout
 	{
-		assert(index < width);
-	}
-	body
-	{
-		return typeof(return)(ptr+index, height, shift);
-	}
-
-	///
-	inout(Vector!T) frontTransversal() inout
-	in
-	{
-		assert(!empty);
-	}
-	body
-	{
-		return typeof(return)(ptr, height, shift);
+		import std.traits : Unqual;
+		auto m = Matrix!(Unqual!T)(width, height);
+		foreach(row; cast(Matrix!(T))this)
+		{
+			auto c = m.frontTransversal;
+			m.popFrontTransversal;
+			put(c, row);
+		}
+		return cast(typeof(return))m;
 	}
 
 	///
@@ -195,21 +191,94 @@ struct Matrix(T)
 	}
 
 	///
-	Matrix!(Unqual!T) transpose() const
+	inout(Vector!T) transversal(size_t index) inout
+	in
 	{
-		import std.traits : Unqual;
-		auto m = typeof(return)(width, height);
-		size_t i;
-		foreach(row; cast(Matrix!(Unqual!T))this)
-		{
-			foreach(j, e; row)
-			{
-				m[j, i] = e;
-			}
-			i++;
-		}
-		
-		return m;
+		assert(index < lengthTransveral);
+	}
+	body
+	{
+		return typeof(return)(ptr+index, height, shift);
+	}
+
+	///
+	size_t lengthTransveral() const @property
+	{
+		return width;
+	}
+
+	///
+	bool emptyTransveral() const @property
+	{
+		return lengthTransveral == 0;
+	}
+
+	///
+	inout(Vector!T) frontTransversal() inout
+	in
+	{
+		assert(!emptyTransveral);
+	}
+	body
+	{
+		return typeof(return)(ptr, height, shift);
+	}
+
+	///
+	void popFrontTransversal()
+	in
+	{
+		assert(!emptyTransveral);
+	}
+	body
+	{
+		ptr++;
+		width--;
+	}
+
+	///
+	void popFrontNTransversal(size_t n)
+	in
+	{
+		assert(n <= lengthTransveral);
+	}
+	body
+	{
+		ptr+=n;
+		width-=n;
+	}
+
+	///
+	inout(Vector!T) backTransversal() inout
+	in
+	{
+		assert(!emptyTransveral);
+	}
+	body
+	{
+		return transversal(lengthTransveral-1);
+	}
+
+	///
+	void popBackTransversal()
+	in
+	{
+		assert(!emptyTransveral);
+	}
+	body
+	{
+		width--;
+	}
+
+	///
+	void popBackNTransversal(size_t n)
+	in
+	{
+		assert(n <= lengthTransveral);
+	}
+	body
+	{
+		width-=n;
 	}
 
 	///
@@ -345,6 +414,7 @@ struct Matrix(T)
 	{
 		return typeof(return)(ptr + range1[0] + shift * range0[0], range0[1] - range0[0], range1[1] - range1[0], shift);
 	}
+
 }
 
 ///
@@ -399,20 +469,97 @@ struct TransposedMatrix(T)
 	}
 
 	///
-	inout(Matrix!T) transposed() inout
+	size_t lengthTransveral() const @property
+	{
+		return matrix.length;
+	}
+
+	///
+	bool emptyTransveral() const @property
+	{
+		return matrix.empty;
+	}
+
+	///
+	inout(Matrix!T) transposed() inout @property
 	{
 		return matrix;
 	}
 	
-	inout(T)[] transversal(size_t index) inout
+	inout(T)[] transversal(size_t index) inout @property
+	in
+	{
+		assert(index < lengthTransveral);
+	}
+	body
 	{
 		return matrix[index];
 	}
 
 	///
-	inout(T)[] frontTransversal() inout
+	inout(T)[] frontTransversal() inout @property
+	in
+	{
+		assert(!emptyTransveral);
+	}
+	body
 	{
 		return matrix.front;
+	}
+
+	///
+	void popFrontTransversal()
+	in
+	{
+		assert(!emptyTransveral);
+	}
+	body
+	{
+		matrix.popFront;
+	}
+
+	///
+	void popFrontNTransversal(size_t n)
+	in
+	{
+		assert(n <= lengthTransveral);
+	}
+	body
+	{
+		matrix.popFrontN(n);
+	}
+
+	///
+	inout(T)[] backTransversal() inout @property
+	in
+	{
+		assert(!emptyTransveral);
+	}
+	body
+	{
+		return matrix.back;
+	}
+
+	///
+	void popBackTransversal()
+	in
+	{
+		assert(!emptyTransveral);
+	}
+	body
+	{
+		matrix.popBack;
+	}
+
+	///
+	void popBackNTransversal(size_t n)
+	in
+	{
+		assert(n <= lengthTransveral);
+	}
+	body
+	{
+		matrix.popBackN(n);
 	}
 
 	///
@@ -434,20 +581,18 @@ struct TransposedMatrix(T)
 	}
 	body 
 	{
-		matrix.ptr++;
-		matrix.width--;
+		matrix.popFrontTransversal;
 	}
 
 	///
 	void popFrontN(size_t n)
 	in
 	{ 
-		assert(length >= n); 
+		assert(n <= length); 
 	}
 	body 
 	{
-		matrix.ptr += n;
-		matrix.width -= n;
+		matrix.popFrontNTransversal(n);
 	}
 
 	///
@@ -458,7 +603,7 @@ struct TransposedMatrix(T)
 	}
 	body
 	{
-		return matrix.transversal(length-1);
+		return matrix.backTransversal;
 	}
 
 	///
@@ -469,18 +614,18 @@ struct TransposedMatrix(T)
 	}
 	body 
 	{
-		matrix.width--;
+		matrix.popBackTransversal;
 	}
 
 	///
 	void popBackN(size_t n)
 	in
 	{ 
-		assert(matrix.width >= n); 
+		assert(n <= length); 
 	}
 	body 
 	{
-		matrix.width -= n;
+		matrix.popBackNTransversal(n);
 	}
 
 	///
@@ -559,10 +704,101 @@ unittest
 	}
 }
 
+
+/**
+Stack of columns.
+*/
+struct SlidingWindow(T)
+{
+	///
+	T[] data;
+
+	///
+	TransposedMatrix!T transposedMatrix;
+
+	///
+	alias transposedMatrix this;
+
+	///
+	this(size_t maxWidth, size_t maxHeight, size_t height)
+	in
+	{
+		assert(maxHeight > height);
+	}
+	body
+	{
+		data = new T[maxHeight * maxWidth];
+		transposedMatrix = TransposedMatrix!T(Matrix!T(data.ptr, height, 0, maxWidth));
+	}
+
+	///
+	void reset()
+	{
+		matrix.ptr = data.ptr;
+		matrix.width = 0;
+	}
+
+	///
+	void put(Range)(Range range)
+		if(isInputRange!Range && hasLength!Range)
+	in
+	{
+		assert(range.length == width);
+	}
+	body
+	{
+		if(matrix.ptrEnd >= data.ptr+data.length)
+		{
+			moveToFront();
+		}
+		matrix.width++;
+		assert(matrix.width <= matrix.shift);
+		assert(matrix.shift * matrix.height <= data.length);
+		range.copy(this.back);
+	}
+
+	///
+	void moveToFront()
+	{
+		if(length)
+		{
+			immutable shift = matrix.ptr-data.ptr;
+			if(shift)
+			{
+				foreach(row; matrix)
+				{
+					(row.ptr-shift)[0..matrix.width] = row[];
+				}
+			}
+		}
+		matrix.ptr = data.ptr;
+	}
+}
+
 ///
 unittest
 {
-	auto m = Matrix!double(3, 4);
+	auto sl = SlidingWindow!double(3,5,4);
+	sl.put([0, 3, 6, 9]);
+	sl.put([1, 4, 7, 9]);
+	sl.put([2, 5, 8, 0]);
+	assert(sl[1, 2] == 7);
+	assert(sl.matrix[2, 1] == 7);
+	sl.front.equal([0, 3, 6, 9]);
+	sl.popFront();
+	sl.front.equal([1, 4, 7, 9]);
+	sl.backTransversal == [9, 0];
+	foreach(i; 0..3)
+	{
+		assert(sl.matrix.ptr != sl.data.ptr);
+		sl.put([i,i+4,i+8, 0]);
+		sl.popFront();
+	}
+	assert(sl.matrix.ptr-1 == sl.data.ptr);
+	sl.put([6, 7, 0, 3]);
+	assert(sl.length == 3);
+	assert(sl.matrix.length == 4);
+	assert(sl.transversal(1) == [5, 6, 7]);
 }
 
 

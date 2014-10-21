@@ -11,3 +11,5 @@ libsimple_matrix.a
 *.o
 
 *.ddoc
+
+__test__library__
