@@ -20,7 +20,8 @@ struct Vector(T)
 	}
 
 	ref inout(T) front() inout @property
-	in{
+	in
+	{
 		assert(length);
 	}
 	body{
@@ -28,7 +29,8 @@ struct Vector(T)
 	}
 
 	void popFront()
-	in{
+	in
+	{
 		assert(length);
 	}
 	body{
@@ -45,7 +47,8 @@ struct Vector(T)
 	in {
 		assert(index < length);
 	}
-	body {
+	body 
+	{
 		return ptr[shift*index];
 	}
 }
@@ -106,7 +109,8 @@ struct Matrix(T)
 	in {
 		assert(heightI < height);
 	}
-	body {
+	body 
+	{
 		auto l = heightI * shift;
 		return ptr[l .. l + width];
 	}
@@ -117,7 +121,8 @@ struct Matrix(T)
 		assert(heightI < height);
 		assert(widthI < width);		
 	}
-	body {
+	body 
+	{
 		return ptr[heightI * shift + widthI];
 	}
 
@@ -127,7 +132,8 @@ struct Matrix(T)
 		assert(lb <= rb);
 		assert(rb < height);
 	}
-	body {
+	body 
+	{
 		return typeof(return)(ptr + shift * lb, rb - lb, width, shift);
 	}
 
@@ -137,7 +143,8 @@ struct Matrix(T)
 		assert(heightI < height);
 		assert(widthI < width);		
 	}
-	body {
+	body 
+	{
 		return ptr[heightI * shift + widthI];
 	}
 
@@ -155,16 +162,24 @@ struct Matrix(T)
 
 
 	void popFront()
-	in{ assert(height); }
-	body {
+	in
+	{ 
+		assert(height); 
+	}
+	body 
+	{
 		ptr += shift;
 		height--;
 	}
 
 
 	void popFrontN(size_t n)
-	in{ assert(height >= n); }
-	body {
+	in
+	{ 
+		assert(height >= n); 
+	}
+	body 
+	{
 		ptr += shift*n;
 		height -= n;
 	}
@@ -178,15 +193,23 @@ struct Matrix(T)
 
 
 	void popBack()
-	in{ assert(height); }
-	body {
+	in
+	{ 
+		assert(height); 
+	}
+	body 
+	{
 		height--;
 	}
 
 
 	void popBackN(size_t n)
-	in{ assert(height >= n); }
-	body {
+	in
+	{ 
+		assert(height >= n); 
+	}
+	body 
+	{
 		height -= n;
 	}
 
@@ -268,47 +291,97 @@ struct Transposed(T)
 	{
 		return matrix[index];
 	}
-	
-	inout(Vector!T) opIndex(size_t index)  inout
-	{
-		return matrix.column(index);
-	}
-
-	auto ref opIndex(size_t index1, size_t index2) inout
-	{
-		return matrix[index2, index1];
-	}
-
-	inout(Vector!T) front() inout
-	{
-		assert(!empty);
-		return matrix.column(0);
-	}
 
 	bool empty() const 
 	{
 		return length == 0;
 	}
 
+	inout(Vector!T) front() inout
+	in
+	{
+		assert(!empty);
+	}
+	body
+	{
+		return matrix.column(0);
+	}
+
 	void popFront()
-	in{ assert(matrix.width); }
-	body {
+	in
+	{ 
+		assert(matrix.width); 
+	}
+	body 
+	{
 		matrix.ptr++;
 		matrix.width--;
 	}
 
-
 	void popFrontN(size_t n)
-	in{ assert(matrix.width >= n); }
-	body {
+	in
+	{ 
+		assert(matrix.width >= n); 
+	}
+	body 
+	{
 		matrix.ptr += n;
 		matrix.width -= n;
 	}
 
+	inout(Transposed) save() inout
+	{
+		return this;
+	}
 
-	size_t length() const 
+	inout(Vector!T) back() inout
+	in
+	{
+		assert(!empty);
+	}
+	body
+	{
+		return matrix.column(length-1);
+	}
+
+	void popBack()
+	in
+	{ 
+		assert(matrix.width); 
+	}
+	body 
+	{
+		matrix.width--;
+	}
+
+	void popBackN(size_t n)
+	in
+	{ 
+		assert(matrix.width >= n); 
+	}
+	body 
+	{
+		matrix.width -= n;
+	}
+
+	size_t length() const
 	{
 		return matrix.width;
+	}
+
+	size_t opDollar() const
+	{
+		return length;
+	}
+
+	inout(Vector!T) opIndex(size_t index)  inout
+	{
+		return matrix.column(index);
+	}
+
+	auto ref inout(T) opIndex(size_t index1, size_t index2) inout
+	{
+		return matrix[index2, index1];
 	}
 }
 
