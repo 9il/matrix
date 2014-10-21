@@ -7,3 +7,5 @@ docs.json
 *.a
 
 libsimple_matrix.a
+
+*.o

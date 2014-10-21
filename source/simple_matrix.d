@@ -69,9 +69,9 @@ struct Matrix(T)
 	}
 
 
-	Transposed!T transposed()
+	inout(Transposed!T) transposed() inout
 	{
-		return Transposed!T(this);
+		return typeof(return)(this);
 	}
 
 
@@ -102,7 +102,7 @@ struct Matrix(T)
 	}
 
 
-	const(T)* end() const
+	inout(T)* end() inout
 	{
 		return ptr+height*shift;
 	}
