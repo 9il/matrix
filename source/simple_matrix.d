@@ -75,25 +75,25 @@ struct Matrix(T)
 	}
 
 
-	this(size_t height, size_t width)
+	this(size_t height, size_t width) inout
 	{
 		this(height, width, width);
 	}
 
 
-	this(T* ptr, size_t height, size_t width)
+	this(inout(T)* ptr, size_t height, size_t width) inout
 	{
 		this(ptr, height, width, width);
 	}
 
 
-	this(size_t height, size_t width, size_t shift)
+	this(size_t height, size_t width, size_t shift) inout
 	{
-		this(new T[height * shift].ptr, height, width, shift);
+		this(new inout(T)[height * shift].ptr, height, width, shift);
 	}
 
 
-	this(T* ptr, size_t height, size_t width, size_t shift)
+	this(inout(T)* ptr, size_t height, size_t width, size_t shift) inout
 	{
 		this.ptr = ptr;
 		this.height = height;
@@ -102,13 +102,7 @@ struct Matrix(T)
 	}
 
 
-	inout(T)* end() inout
-	{
-		return ptr+height*shift;
-	}
-
-
-	T[] opIndex(size_t heightI)
+	inout(T)[] opIndex(size_t heightI) inout
 	in {
 		assert(heightI < height);
 	}
@@ -118,7 +112,7 @@ struct Matrix(T)
 	}
 
 
-	auto ref opIndex(size_t heightI, size_t widthI)
+	auto ref opIndex(size_t heightI, size_t widthI) inout
 	in {
 		assert(heightI < height);
 		assert(widthI < width);		
@@ -128,13 +122,32 @@ struct Matrix(T)
 	}
 
 
+	inout(typeof(this)) opSlice(size_t lb, size_t rb) inout
+	in {
+		assert(lb <= rb);
+		assert(rb < height);
+	}
+	body {
+		return typeof(return)(ptr + shift * lb, rb - lb, width, shift);
+	}
+
+
+	auto ref opSlice(size_t heightI, size_t widthI)
+	in {
+		assert(heightI < height);
+		assert(widthI < width);		
+	}
+	body {
+		return ptr[heightI * shift + widthI];
+	}
+
 	T[] array()
 	{
 		return ptr[0..height * width];
 	}
 
 
-	T[] front()
+	inout(T)[] front() inout
 	{
 		assert(height);
 		return ptr[0..width];
@@ -157,6 +170,27 @@ struct Matrix(T)
 	}
 
 
+	inout(T)[] back() inout
+	{
+		assert(height);
+		return (ptr+height-1)[0..width];
+	}
+
+
+	void popBack()
+	in{ assert(height); }
+	body {
+		height--;
+	}
+
+
+	void popBackN(size_t n)
+	in{ assert(height >= n); }
+	body {
+		height -= n;
+	}
+
+
 	bool empty() const 
 	{
 		return length == 0;
@@ -166,6 +200,11 @@ struct Matrix(T)
 	size_t length() const 
 	{
 		return height;
+	}
+
+	size_t opDollar() const
+	{
+		return length;
 	}
 
 
@@ -198,7 +237,8 @@ struct Matrix(T)
 		return m;
 	}
 
-	T* ptrEnd()
+
+	inout(T)* ptrEnd() inout
 	{
 		return ptr+height*shift;
 	}
@@ -229,12 +269,12 @@ struct Transposed(T)
 		return matrix[index];
 	}
 	
-	Vector!T opIndex(size_t index) 
+	inout(Vector!T) opIndex(size_t index)  inout
 	{
 		return matrix.column(index);
 	}
 
-	auto ref opIndex(size_t index1, size_t index2)
+	auto ref opIndex(size_t index1, size_t index2) inout
 	{
 		return matrix[index2, index1];
 	}
