@@ -9,7 +9,7 @@ struct Vector(T)
 	size_t length;
 	ptrdiff_t shift;
 
-	typeof(this) save() @property
+	inout(typeof(this)) save() inout @property
 	{
 		return this;
 	}
@@ -19,7 +19,7 @@ struct Vector(T)
 		return length;
 	}
 
-	auto ref front() @property
+	ref inout(T) front() inout @property
 	in{
 		assert(length);
 	}
@@ -41,7 +41,7 @@ struct Vector(T)
 		return length == 0;
 	}
 
-	auto ref opIndex(size_t index)
+	ref inout(T) opIndex(size_t index) inout @property
 	in {
 		assert(index < length);
 	}
@@ -58,14 +58,14 @@ struct Matrix(T)
 	size_t width;	
 	ptrdiff_t shift;
 
-	Vector!T column(size_t index)
+	inout(Vector!T) column(size_t index) inout
 	in
 	{
 		assert(index < width);
 	}
 	body
 	{
-		return Vector!T(ptr+index, height, shift);
+		return typeof(return)(ptr+index, height, shift);
 	}
 
 
@@ -259,12 +259,12 @@ struct Transposed(T)
 		return matrix.width;
 	}
 	
-	Matrix!T transposed()  
+	inout(Matrix!T) transposed() inout
 	{
 		return matrix;
 	}
 	
-	T[] column(size_t index)
+	inout(T)[] column(size_t index) inout
 	{
 		return matrix[index];
 	}
@@ -279,7 +279,7 @@ struct Transposed(T)
 		return matrix[index2, index1];
 	}
 
-	Vector!T front()
+	inout(Vector!T) front() inout
 	{
 		assert(!empty);
 		return matrix.column(0);
