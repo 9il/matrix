@@ -720,14 +720,10 @@ struct SlidingWindow(T)
 	alias transposedMatrix this;
 
 	///
-	this(size_t maxWidth, size_t maxHeight, size_t height)
-	in
-	{
-		assert(maxHeight > height);
-	}
+	this(size_t height, size_t maxWidth)
 	body
 	{
-		data = new T[maxHeight * maxWidth];
+		data = new T[(height+1) * maxWidth];
 		transposedMatrix = TransposedMatrix!T(Matrix!T(data.ptr, height, 0, maxWidth));
 	}
 
@@ -747,14 +743,35 @@ struct SlidingWindow(T)
 	}
 	body
 	{
-		if(matrix.ptrEnd >= data.ptr+data.length)
+		if(matrix.ptrEnd-(matrix.shift-matrix.width) == data.ptr+data.length)
 		{
 			moveToFront();
 		}
+		assert(matrix.ptrEnd-(matrix.shift-matrix.width) < data.ptr+data.length);
 		matrix.width++;
 		assert(matrix.width <= matrix.shift);
 		assert(matrix.shift * matrix.height <= data.length);
 		range.copy(this.back);
+	}
+
+
+	///
+	void reserveBackN(size_t n)
+	in
+	{
+		assert(n <= matrix.shift);
+		assert(n+matrix.width <= matrix.shift);
+	}
+	body
+	{
+		if(matrix.ptrEnd-(matrix.shift-matrix.width)+n > data.ptr+data.length)
+		{
+			moveToFront();
+		}
+		assert(matrix.ptrEnd-(matrix.shift-matrix.width)+n <= data.ptr+data.length);
+		matrix.width+=n;
+		assert(matrix.width <= matrix.shift);
+		assert(matrix.shift * matrix.height <= data.length);
 	}
 
 	///
@@ -778,7 +795,7 @@ struct SlidingWindow(T)
 ///
 unittest
 {
-	auto sl = SlidingWindow!double(3,5,4);
+	auto sl = SlidingWindow!double(4, 3);
 	sl.put([0, 3, 6, 9]);
 	sl.put([1, 4, 7, 9]);
 	sl.put([2, 5, 8, 0]);
@@ -850,6 +867,12 @@ private template _D2(alias This, T)
 
 	///
 	size_t length() const @property
+	{
+		return height;
+	}
+
+	///
+	size_t opDollar(size_t pos : 0)() const
 	{
 		return height;
 	}
