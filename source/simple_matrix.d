@@ -171,20 +171,6 @@ struct Matrix(T)
 	}
 
 	///
-	inout(typeof(this)) transpose() inout
-	{
-		import std.traits : Unqual;
-		auto m = Matrix!(Unqual!T)(width, height);
-		foreach(row; cast(Matrix!(T))this)
-		{
-			auto c = m.frontTransversal;
-			m.popFrontTransversal;
-			put(c, row);
-		}
-		return cast(typeof(return))m;
-	}
-
-	///
 	inout(TransposedMatrix!T) transposed() inout
 	{
 		return typeof(return)(this);
@@ -222,6 +208,18 @@ struct Matrix(T)
 	body
 	{
 		return typeof(return)(ptr, height, shift);
+	}
+
+	///
+	unittest 
+	{
+		import std.algorithm : equal;
+		auto m = Matrix!double(3, 4);
+		m.data[] = [
+			1, 2, 3, 4,
+			5, 6, 7, 8,
+			9,10,11,12,];
+		assert(equal(m.frontTransversal, [1,5,9]));
 	}
 
 	///
@@ -279,6 +277,33 @@ struct Matrix(T)
 	body
 	{
 		width-=n;
+	}
+
+	///
+	inout(typeof(this)) transpose() inout
+	{
+		import std.traits : Unqual;
+		auto m = Matrix!(Unqual!T)(width, height);
+		auto mSave = m.save;
+		foreach(row; cast(Matrix!(T))this)
+		{
+			auto c = m.frontTransversal;
+			put(c, row);
+			m.popFrontTransversal;
+		}
+		return cast(typeof(return))mSave;
+	}
+
+	///
+	unittest 
+	{
+		auto m = Matrix!double(3, 4);
+		m.data[] = [
+			1, 2, 3, 4,
+			5, 6, 7, 8,
+			9,10,11,12,];
+		auto t = m.transpose;
+		assert(t.data == [1,5,9,2,6,10,3,7,11,4,8,12]);
 	}
 
 	///
@@ -805,7 +830,7 @@ unittest
 	sl.popFront();
 	sl.front.equal([1, 4, 7, 9]);
 	sl.backTransversal == [9, 0];
-	foreach(i; 0..3)
+	foreach(i; 0..4)
 	{
 		assert(sl.matrix.ptr != sl.data.ptr);
 		sl.put([i,i+4,i+8, 0]);
@@ -815,7 +840,7 @@ unittest
 	sl.put([6, 7, 0, 3]);
 	assert(sl.length == 3);
 	assert(sl.matrix.length == 4);
-	assert(sl.transversal(1) == [5, 6, 7]);
+	assert(sl.transversal(1) == [6, 7, 7]);
 }
 
 
