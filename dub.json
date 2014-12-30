@@ -4,8 +4,12 @@
 	"targetType": "library",
 	"homepage": "http://github.com/9il/simple_matrix",
 	"copyright": "Copyright © 2014 Ilya Yaroshenko",
-	"authors": [
-		"Ilya Yaroshenko"
-	],
-	"license": "Subject to the terms of the MIT license, as written in the included LICENSE.txt file."
+	"authors": ["Ilya Yaroshenko"],
+	"license": "Subject to the terms of the MIT license, as written in the included LICENSE.txt file.",
+	"buildTypes": {
+		"stddoc": {
+			"buildOptions": ["syntaxOnly"],
+			"dflags": ["-c", "-op", "-Dddocs", "stddoc.ddoc"],
+		}
+	}
 }
